@@ -211,3 +211,7 @@ wssplot <- function(data, nc=15, seed=1234) {
          ylab="Within groups sum of squares")
 }
 
+rmCols <- function(data, cols) {
+    !names(data) %in% cols
+}
+
