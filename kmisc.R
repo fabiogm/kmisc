@@ -212,6 +212,6 @@ wssplot <- function(data, nc=15, seed=1234) {
 }
 
 rmCols <- function(data, cols) {
-    !names(data) %in% cols
+    !names(data) %in% c(cols)
 }
 
