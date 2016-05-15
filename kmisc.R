@@ -79,6 +79,19 @@ selectColumns <- function(obj, cols) {
 #    return(list(train=train_split, test=test_split, y=y))
 #}
 
+# getDefault
+# 
+# Returns the value of attribute param in list l if it existing, otherwise return default.
+getDefault <- function(l, param, default) {
+    v <- l[[param]]
+    
+    if(is.null(v)) {
+        v <- default
+    }
+    
+    return(v)
+}
+
 createTestSplit <- function(train, holdout.percentage=0.2) {
     if (holdout.percentage <= 0 || holdout.percentage >= 1) {
         stop('Holdout percentage outside (0,1) interval.')
