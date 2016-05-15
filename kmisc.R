@@ -21,6 +21,8 @@
 # SOFTWARE.
 
 library(car)
+library(caret)
+library(corrplot)
 
 # readObject
 #
@@ -195,6 +197,11 @@ normHist <- function(data) {
     dens$y <- dens$y * multiplier[1]
     plot(h)
     lines(dens)
+}
+
+correlationPlot <- function(dataf) {
+    correlations <- cor(dataf)
+    corrplot(correlations, order='hclust')
 }
 
 #
