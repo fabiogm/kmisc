@@ -85,6 +85,10 @@ selectColumns <- function(obj, cols) {
 # 
 # Returns the value of attribute param in list l if it existing, otherwise return default.
 getDefault <- function(l, param, default) {
+    if (length(l) == 0) {
+        return(default)
+    }
+
     v <- l[[param]]
     
     if(is.null(v)) {
