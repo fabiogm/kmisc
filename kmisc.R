@@ -49,7 +49,7 @@ readObject <- function(file, ...) {
 #
 # Create a new data frame with specifed columns dropped from the original data frame.
 dropColumns <- function(obj, cols) {
-    obj[, !(colnames(cols) %in% cols)]
+    obj[, !(colnames(obj) %in% cols)]
 }
 
 # selectColumns
