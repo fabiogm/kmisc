@@ -61,6 +61,10 @@ selectColumns <- function(obj, cols) {
     obj[, colnames(cols) %in% cols]
 }
 
+rmCols <- function(data, cols) {
+    !names(data) %in% c(cols)
+}
+
 #getTrainSplit <- function(train, label, holdout.percentage=0.2, drop.labels=T) {
 #
 #    if (holdout.percentage <= 0 || holdout.percentage >= 1) {
@@ -211,12 +215,12 @@ correlationPlot <- function(dataf) {
 #
 # Metrics
 #
-LogLoss <- function(act, pred, eps=1e-15) {
+logLoss <- function(act, pred, eps=1e-15) {
     nr <- length(pred)
-    pred <- max(pred, eps)
-    pred <- min(pred, 1-eps)
-    ll <- sum(act*log(pred))
-    ll <- ll * (-1/length(act))
+    pred <- pmax(pred, eps)
+    pred <- pmin(pred, 1-eps)
+    ll <- sum(act*log(pred) + (1-act)*log(1-pred))
+    ll <- ll * (-1/nr)
     return (ll)
 }
 
