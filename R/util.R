@@ -20,9 +20,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-library(car)
-library(caret)
-library(corrplot)
+# getDefault
+# 
+# Returns the value of attribute param in list l if it existing, otherwise return default.
+getDefault <- function(l, param, default) {
+    if (length(l) == 0) {
+        return(default)
+    }
+
+    v <- l[[param]]
+    
+    if(is.null(v)) {
+        v <- default
+    }
+    
+    return(v)
+}
 
 # readObject
 #
@@ -63,43 +76,6 @@ selectColumns <- function(obj, cols) {
 
 rmCols <- function(data, cols) {
     !names(data) %in% c(cols)
-}
-
-#getTrainSplit <- function(train, label, holdout.percentage=0.2, drop.labels=T) {
-#
-#    if (holdout.percentage <= 0 || holdout.percentage >= 1) {
-#        stop('Holdout percentage outside (0,1) interval.')
-#    }
-#
-#    n <- nrow(train)
-#    offset <- ceiling(n*(1 - holdout.percentage))
-#    df <- train[sample(n, n),]
-#    train_split <- df[1:offset,]
-#    test_split <- df[(offset+1):n,]
-#    y <- test_split[[label]]
-#
-#    if (drop.labels) {
-#        test_split[[label]] <- NULL
-#    }
-#
-#    return(list(train=train_split, test=test_split, y=y))
-#}
-
-# getDefault
-# 
-# Returns the value of attribute param in list l if it existing, otherwise return default.
-getDefault <- function(l, param, default) {
-    if (length(l) == 0) {
-        return(default)
-    }
-
-    v <- l[[param]]
-    
-    if(is.null(v)) {
-        v <- default
-    }
-    
-    return(v)
 }
 
 createTestSplit <- function(train, holdout.percentage=0.2) {
@@ -150,105 +126,3 @@ filterNumeric <- function(dataf) {
 paster <- function(...) {
     paste(..., collapse='')
 }
-
-#
-# Heuristic plots
-#
-
-# Inspired by 'Data Mining with R' by Luís Torgo
-normalityPlot <- function(xs, prob=F, xlab='', main='', showDensity=T, showJitter=T) {
-    expr <- deparse(substitute(xs))
-    par(mfrow=c(1,2))
-
-    if (main == '') {
-        main <- paste('Histogram of', expr)
-    }
-
-    if (xlab == '') {
-        xlab <- expr
-    }
-
-    hist(xs, prob=prob, xlab=xlab, main=main)
-
-    if (showDensity) {
-        lines(density(xs, na.rm=T))
-    }
-
-    if (showJitter) {
-        rug(jitter(xs))
-    }
-
-    qqPlot(xs, main=paste('Normal QQ plot of', expr))
-    par(mfrow=c(1,1))
-}
-
-boxPlot <- function(xs, ylab='', showJitter=T, showMean=T) {
-    if (ylab == '') {
-        ylab <- deparse(substitute(xs))
-    }
-
-    boxplot(xs, ylab=ylab)
-
-    if (showJitter) {
-        rug(jitter(xs), side=2)
-    }
-
-    if (showMean) {
-        abline(h = mean(xs, na.rm=T), lty=2)
-    }
-}
-
-normHist <- function(data) {
-    h <- hist(data)
-    multiplier <- h$counts/h$density
-    dens <- density(data)
-    dens$y <- dens$y * multiplier[1]
-    plot(h)
-    lines(dens)
-}
-
-correlationPlot <- function(dataf) {
-    correlations <- cor(dataf)
-    corrplot(correlations, order='hclust')
-}
-
-#
-# Metrics
-#
-logLoss <- function(act, pred, eps=1e-15) {
-    nr <- length(pred)
-    pred <- pmax(pred, eps)
-    pred <- pmin(pred, 1-eps)
-    ll <- sum(act*log(pred) + (1-act)*log(1-pred))
-    ll <- ll * (-1/nr)
-    return (ll)
-}
-
-rmse <- function(y, y_hat) {
-    sqrt(mean((y-y_hat)^2))
-}
-
-# From "R in Action" by Robert Kabacoff
-wssplot <- function(data, nc=15, seed=1234) {
-    wss <- (nrow(data)-1)*sum(apply(data,2,var))
-    for (i in 2:nc) {
-        set.seed(seed)
-        wss[i] <- sum(kmeans(data, centers=i)$withinss)
-    }
-    plot(1:nc, wss, type="b", xlab="Number of Clusters",
-         ylab="Within groups sum of squares")
-}
-
-#
-# Outlier tests
-#
-
-walshOutlierTest <- function() {
-}
-
-rmCols <- function(data, cols) {
-    !names(data) %in% c(cols)
-}
-
-
-
