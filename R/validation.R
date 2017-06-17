@@ -40,13 +40,23 @@
     sqrt(mean((y-y_hat)^2))
 }
 
-VALID_METRICS <- c('logLoss', 'mae', 'rmse')
+.r2 <- function(y, y_hat) {
+    ss_res <- sum((y-y_hat)^2)
+    mu_y <- mean(y)
+    ss_tot <- sum((y-mu_y)^2)
+
+    1 - ss_res / ss_tot
+}
+
+VALID_METRICS <- c('logLoss', 'mae', 'rmse', 'r2')
 
 .getMetric <- function(metricName) {
     switch(metricName,
            logLoss = .logLoss,
            mae = .mae,
-           rmse = .rmse)
+           rmse = .rmse,
+           r2 = .r2,
+           metricName)
 }
 
 partitionData <- function(traindf, target) {
@@ -74,11 +84,16 @@ createControl <- function(metric='logLoss', n=3, method="repeated") {
         stop("Invalid validation method: ", method)
     }
 
-    if (!(metric %in% VALID_METRICS)) {
-        stop("Invalid metric: ", metric)
+    if (class(metric) == "character") {
+        if (!(metric %in% VALID_METRICS)) {
+            stop("Invalid metric: ", metric)
+        }
+        metric <- .getMetric(metric)
+    } else {
+        stop("Invalid metric")
     }
 
-    list(metric=.getMetric(metric), n=n, method="repeated")
+    list(metric=metric, n=n, method="repeated")
 } 
 
 .performTunningRounds <- function(traindf, methodName, params, target, metric, n, verbose, ...) {
