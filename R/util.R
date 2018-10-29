@@ -94,19 +94,32 @@ createFormula <- function(object, target, todrop=NULL) {
     return(as.formula(paste(target, '~', paste(cols, collapse='+'))))
 }
 
-# createDummyVariables
-#
-# (data.frame, c(), boolean) -> data.frame
-#
-# Creates a data.frame with additional dummy variables for the selected variables.
-createDummyVariables <- function(dataf, vars, full.rank=T, sep='_') {
+#' Returns dummy encoded variables for a data frame.
+#' 
+#' @param X a data frame.
+#' @param vars variables to be encoded. Defaults to NULL, case when all
+#'  categorical variables in X are dummy encoded.
+#' @param full.rank boolean, if TRUE generates full rank data frame.
+#' @param sep is a character specifying the separator for dummy variables names.
+#'  Names are generated as variable name + separator + level.
+#' 
+#' @return a data frame containing dummy encoded variables.
+#' @export
+createDummyVariables <- function(X, vars=NULL, full.rank=T, sep='_') {
+    result <- data.frame(matrix(nrow=nrow(X), ncol=0))
+
+    if (is.null(vars)) {
+        vars <- colnames(X)[sapply(X, class) == "factor"]
+    }
+
     if (full.rank) {
         for (vr in vars) {
             for (level in unique(dataf[[vr]])) {
-                dataf[paste("dummy", gsub(" ", "", level), sep=sep)] <- ifelse(dataf[[vr]] == level, 1, 0)
+                result[paste(vr, gsub(" ", "", level), sep=sep)] <- ifelse(X[[vr]] == level, 1, 0)
             }
         }
-        return(dataf)
+
+        return(result)
     } else {
         dummies <- model.matrix(as.formula(paste('~', paste(vars, collapse='+'))), data=dataf)[, -1]
         return(cbind(dataf, dummies))
